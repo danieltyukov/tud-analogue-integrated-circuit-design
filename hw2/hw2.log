@@ -1,0 +1,57 @@
+Circuit: * Z:\home\danieltyukov\workspace\tud\tud-analogue-integrated-circuit-design\hw2\hw2.asc
+
+Ignoring BSIM parameter ACM
+Ignoring BSIM parameter HDIF
+Ignoring BSIM parameter XL
+Ignoring BSIM parameter XW
+Error on line 1220 : .model nch nmos ( acm = 3 hdif = 0.32e-6 level = 49 version = 3.3 tnom = 27 tox = 4.1e-9 xj = 1e-7 nch = 2.3549e17 vth0 = 0.3618397 k1 = 0.5916053 k2 = 3.225139e-3 k3 = 1e-3 k3b = 2.3938862 w0 = 1e-7 nlx = 1.776268e-7 dvt0w = 0 dvt1w = 0 dvt2w = 0 dvt0 = 1.3127368 dvt1 = 0.3876801 dvt2 = 0.0238708 u0 = 256.74093 ua = -1.585658e-9 ub = 2.528203e-18 uc = 5.182125e-11 vsat = 1.003268e5 a0 = 1.981392 ags = 0.4347252 b0 = 4.989266e-7 b1 = 5e-6 keta = -9.888408e-3 a1 = 6.164533e-4 a2 = 0.9388917 rdsw = 0 prwg = 0.5 prwb = -0.2 wr = 1 wint = 0 lint = 1.617316e-8 xl = 0 xw = -1e-8 dwg = -5.383413e-9 dwb = 9.111767e-9 voff = -0.0854824 nfactor = 2.2420572 cit = 0 cdsc = 2.4e-4 cdscd = 0 cdscb = 0 eta0 = 2.981159e-3 etab = 9.289544e-6 dsub = 0.0159753 pclm = 0.7245546 pdiblc1 = 0.1568183 pdiblc2 = 2.543351e-3 pdiblcb = -0.1 drout = 0.7445011 pscbe1 = 8e10 pscbe2 = 1.876443e-9 pvag = 7.200284e-3 delta = 0.01 rsh = 0 mobmod = 1 prt = 0 ute = -1.5 kt1 = -0.11 kt1l = 0 kt2 = 0.022 ua1 = 4.31e-9 ub1 = -7.61e-18 uc1 = -5.6e-11 at = 3.3e4 wl = 0 wln = 1 ww = 0 wwn = 1 wwl = 0 ll = 0 lln = 1 lw = 0 lwn = 1 lwl = 0 capmod = 2 xpart = 1 cgdo = 4.91e-10 cgso = 4.91e-10 cgbo = 1e-12 cj = 9.652028e-4 pb = 0.8 mj = 0.3836899 cjsw = 2.326465e-10 pbsw = 0.8 mjsw = 0.1253131 cjswg = 3.3e-10 pbswg = 0.8 mjswg = 0.1253131 cf = 0 pvth0 = -7.714081e-4 prdsw = -2.5827257 pk2 = 9.619963e-4 wketa = -1.060423e-4 lketa = -5.373522e-3 pu0 = 4.5760891 pua = 1.469028e-14 pub = 1.783193e-23 pvsat = 1.19774e3 peta0 = 9.968409e-5 pketa = -2.51194e-3 cjgate = 0 noimod = 6 noia = 1e19 noib = 3e4 noic=1e-13 )
+	* Unrecognized parameter "cjgate" -- ignored
+Warning: Pd = 0 is less than W.
+Warning: Ps = 0 is less than W.
+Direct Newton iteration for .op point succeeded.
+Semiconductor Device Operating Points:
+                        --- BSIM3 MOSFETS ---
+Name:        m1
+Model:       nch
+Id:        7.93e-05
+Vgs:       6.00e-01
+Vds:       1.50e+00
+Vbs:       0.00e+00
+Vth:       4.79e-01
+Vdsat:     1.03e-01
+Gm:        1.08e-03
+Gds:       2.54e-05
+Gmb        2.55e-04
+Cbd:       0.00e+00
+Cbs:       0.00e+00
+Cgsov:     2.45e-15
+Cgdov:     2.45e-15
+Cgbov:     1.48e-19
+dQgdVgb:   1.01e-14
+dQgdVdb:  -2.42e-15
+dQgdVsb:  -7.21e-15
+dQddVgb:  -2.46e-15
+dQddVdb:   2.46e-15
+dQddVsb:   1.31e-18
+dQbdVgb:  -1.24e-15
+dQbdVdb:   2.57e-18
+dQbdVsb:  -3.64e-16
+
+
+
+Date: Mon Mar 16 01:59:06 2026
+Total elapsed time: 0.044 seconds.
+
+tnom = 27
+temp = 27
+method = trap
+totiter = 4
+traniter = 0
+tranpoints = 0
+accept = 0
+rejected = 0
+matrix size = 4
+fillins = 0
+solver = Normal
+Matrix Compiler1: 118 bytes object code size
+Matrix Compiler2: 216 bytes object code size
