@@ -141,3 +141,53 @@ The square-law model **significantly underestimates** both $I_D$ (by 32%) and $g
 3. **The square-law model itself is inadequate.** Even with correctly extracted parameters at this $L$, the quadratic $I_D$-$V_{GS}$ relationship does not accurately describe BSIM3v3 device behavior. This confirms the inapplicability of the square-law formula for 180nm MOS devices.
 
 ---
+
+## Part D
+
+Extract the same values from part (c) using the lookup tables provided for the ET4252 technology. Show how they match the LTSpice simulation.
+
+### Method
+
+The lookup tables (`180nch.mat`) contain pre-simulated BSIM3v3 data indexed by $(L,\, V_{GS},\, V_{DS},\, V_{SB})$. Using the `look_up` function:
+
+$$\frac{I_D}{W} = \texttt{look\_up}(\texttt{nch},\, \texttt{'ID\_W'},\, \texttt{'VGS'},\, 0.75,\, \texttt{'VDS'},\, 1.5,\, \texttt{'L'},\, 0.7)$$
+
+$$I_D = \frac{I_D}{W} \times W = 1.7846 \times 10^{-5} \times 20 = 356.92\,\mu A$$
+
+$$\frac{g_m}{I_D} = \texttt{look\_up}(\texttt{nch},\, \texttt{'GM\_ID'},\, \texttt{'VGS'},\, 0.75,\, \texttt{'VDS'},\, 1.5,\, \texttt{'L'},\, 0.7) = 5.85\,S/A$$
+
+$$g_m = \frac{g_m}{I_D} \times I_D = 5.85 \times 356.92 \times 10^{-6} = 2.088\,mS$$
+
+### MATLAB Script
+
+```matlab
+load('180nch.mat');
+VGS = 0.75; VDS = 1.5; L = 0.7; W = 20; % all in um
+
+id_w  = look_up(nch, 'ID_W',  'VGS', VGS, 'VDS', VDS, 'L', L);
+ID    = id_w * W;
+
+gm_id = look_up(nch, 'GM_ID', 'VGS', VGS, 'VDS', VDS, 'L', L);
+gm    = gm_id * ID;
+```
+
+### Results
+
+| Parameter | Lookup Table | LTSpice (BSIM3v3) | Error |
+|-----------|-------------|-------------------|-------|
+| $I_D$     | $356.92\,\mu A$ | $357.68\,\mu A$ | $-0.21\%$ |
+| $g_m$     | $2.088\,mS$     | $2.09\,mS$      | $-0.11\%$ |
+
+The lookup table values match LTSpice to within $0.2\%$, confirming that the pre-computed tables accurately capture the BSIM3v3 device behavior. In contrast, the square-law model from part (c) produced errors of $-32\%$ and $-35\%$.
+
+### Full Comparison
+
+| Method | $I_D$ | $g_m$ | $I_D$ Error | $g_m$ Error |
+|--------|-------|-------|-------------|-------------|
+| Square-law (Part C) | $243.6\,\mu A$ | $1.368\,mS$ | $-31.9\%$ | $-34.5\%$ |
+| Lookup table (Part D) | $356.92\,\mu A$ | $2.088\,mS$ | $-0.21\%$ | $-0.11\%$ |
+| LTSpice reference | $357.68\,\mu A$ | $2.09\,mS$ | — | — |
+
+This confirms the inapplicability of the square-law formula and validates the $g_m/I_D$ lookup methodology as an accurate alternative for 180nm MOS device design.
+
+---
