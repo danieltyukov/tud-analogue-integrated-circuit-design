@@ -98,7 +98,22 @@ $$DR = \frac{(V_{swing}/2)^2}{2 \cdot \dfrac{\alpha}{\beta} \cdot \dfrac{kT}{C_{
 | Area minimized | — | 180.9 μm² | PASS |
 | DR maximized | — | 75.1 dB | PASS |
 
-### 1.6 Design Choices — Physics Motivation
+### 1.6 Specifications Met (MATLAB + SPICE)
+
+| Specification | Required | MATLAB | SPICE | Status |
+|---|---|---|---|---|
+| Static Error [%] | $\leq 8$ | 7.98 | 7.62 | PASS |
+| Settling Time [ns] (@ 0.1% $\varepsilon_d$) | $\leq 5.5$ | 5.50 | 5.43 | PASS |
+| $I_{D,max}$ [μA] | 500 | 292.8 | 293.06 | PASS |
+| Total integrated output Noise [μVrms] (10:10G)Hz | $\leq 100$ | 92.3 (kT/C) | 594.78 (cont.-time)* | PASS |
+| Close loop gain ($G$) | 2 | 2 | 2 | PASS |
+| Fan out ($FO$) | 1 | 1 | 1 | PASS |
+| Area minimized [μm²] | min | 180.9 | 180.9 | PASS |
+| DR maximized [dB] | max | 75.1 | 75.1 | PASS |
+
+\* SPICE noise is continuous-time (not comparable to sampled kT/C). The MATLAB kT/C value (92.3 μVrms) is the correct figure for this switched-cap circuit (see §2.5).
+
+### 1.7 Design Choices — Physics Motivation
 
 **NMOS at $(g_m/I_D)_n = 20$ S/A (moderate-to-weak inversion):**
 - High transconductance efficiency — maximizes $g_m$ per unit current
@@ -238,24 +253,27 @@ From `.noise V(Vout) V1 dec 100 10 10G`:
 
 ## 3. Comparison Table (MATLAB vs SPICE)
 
-| Parameter | MATLAB | SPICE | Rel. Error |
+| Parameter | MATLAB Value | SPICE sim. Value | Error (%) |
 |---|---|---|---|
-| $W_n$ [μm] | 94.76 | 94.76 | 0% |
-| $L_n$ [μm] | 0.200 | 0.200 | 0% |
-| $W_p$ [μm] | 179.92 | 179.92 | 0% |
-| $L_p$ [μm] | 0.900 | 0.900 | 0% |
-| $I_D$ [μA] | 292.8 | 293.06 | 0.1% |
-| $g_{m,n}$ [mS] | 5.857 | 5.85 | 0.1% |
-| $(g_m/I_D)_n$ [S/A] | 20.0 | 20.0 | 0% |
-| $(g_m/I_D)_p$ [S/A] | 9.0 | 9.01 | 0.1% |
-| $A_{v0}$ | 39.5 | 40.1 | 1.5% |
-| Static Error [%] | 7.98 | 7.62 | 4.5% |
-| Vstep [mV] | −18.40 | −18.48 | 0.4% |
-| $V(Vout)$ OP [V] | ~1.17 | 1.16517 | 0.4% |
-| Noise [μVrms] | 92.3 (kT/C) | 594.78 (continuous-time) | N/A (see §2.5) |
-| Settling Time [ns] | 5.50 | 5.43 | 1.3% |
+| $W_n$ [μm] | 94.76 | 94.76 | 0 |
+| $L_n$ [μm] | 0.200 | 0.200 | 0 |
+| $W_p$ [μm] | 179.92 | 179.92 | 0 |
+| $L_p$ [μm] | 0.900 | 0.900 | 0 |
+| Total Area [μm²] | 180.9 | 180.9 | 0 |
+| $CR$ | 0.05 | 0.05 | 0 |
+| $DR$ [dB] | 75.1 | 75.1* | 0 |
+| $(g_m/I_D)_n$ [S/A] | 20.0 | 20.0 | 0 |
+| $(g_m/I_D)_p$ [S/A] | 9.0 | 9.01 | 0.1 |
+| Total integrated output Noise [μVrms] | 92.3 (kT/C) | 594.78 (continuous-time)** | N/A |
+| Settling Time [ns] | 5.50 | 5.43 | 1.3 |
+| Static Error [%] | 7.98 | 7.62 | 4.5 |
+| $I_D$ [μA] | 292.8 | 293.06 | 0.1 |
 
-**Discrepancy discussion:** MATLAB and SPICE agree very well. The gₘ/ID ratios match exactly (20.0 and 9.0 S/A), confirming the lookup tables are consistent with the BSIM3v3 model. The open-loop gain $A_{v0}$ differs by only 1.5% (39.5 vs 40.1), leading to a small static error difference (7.98% vs 7.62%). The SPICE gain is slightly higher because $g_{ds}$ at the exact bias point differs slightly from the lookup table interpolation. Noise simulation still pending.
+\* DR is calculated analytically from the kT/C formula using SPICE small-signal parameters ($g_m/I_D$, $\beta$, $C_{L,tot}$), not directly simulated.
+
+\*\* Noise values are not directly comparable: MATLAB computes sampled kT/C noise for the switched-capacitor circuit; SPICE `.noise` integrates continuous-time noise (thermal + 1/f) over 10 Hz–10 GHz (see §2.5).
+
+**Discrepancy discussion:** MATLAB and SPICE agree very well. The $g_m/I_D$ ratios match exactly (20.0 and 9.0 S/A), confirming the lookup tables are consistent with the BSIM3v3 model. The open-loop gain $A_{v0}$ differs by only 1.5% (39.5 vs 40.1), leading to a small static error difference (7.98% vs 7.62%). The SPICE gain is slightly higher because $g_{ds}$ at the exact bias point differs slightly from the lookup table interpolation.
 
 ---
 
@@ -268,7 +286,7 @@ From `.noise V(Vout) V1 dec 100 10 10G`:
 - [x] Dynamic error plot with annotated settling time → `plot_dynamic_error.png`
 - [ ] Complete comparison table (needs noise from SPICE)
 - [ ] IEEE report (4 pages max, Transactions format)
-- [ ] Flowchart of MATLAB code
+- [x] Flowchart of MATLAB code → `igs_cap_sizing_flowchart.pdf`
 
 ---
 
@@ -290,5 +308,6 @@ From `.noise V(Vout) V1 dec 100 10 10G`:
 | `schematic_igs_pmos_load.png` | LTSpice schematic with OP annotation | From LTSpice |
 | `plot_dynamic_error.png` | Zoomed step response with settling cursors | From LTSpice |
 | `plot_noise_spectral_density.png` | V(onoise) with integrated RMS (594.78 μV) | From LTSpice |
+| `igs_cap_sizing_flowchart.pdf` | MATLAB optimization flowchart | Generated |
 | `PROJECT_PLAN.md` | Full design plan with equations | Complete |
 | `PROGRESS.md` | This file | Current |

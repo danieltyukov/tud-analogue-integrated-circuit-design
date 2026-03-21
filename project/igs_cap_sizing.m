@@ -29,6 +29,14 @@ ID_max = 500e-6;         % drain current budget [A]
 gamma_n = 2/3;
 gamma_p = 2/3;
 
+% 1/f (flicker) noise parameters — from BSIM3 noimod=6, noia=1e19
+tox = 4.1e-9;                          % gate oxide thickness [m]
+Cox = 3.9 * 8.854e-12 / tox;           % oxide capacitance per area [F/m^2]
+KFn = 1e-26;                           % NMOS flicker noise coefficient [V^2*F]
+KFp = 1e-26;                           % PMOS flicker noise coefficient [V^2*F]
+f_low  = 10;                           % noise integration lower bound [Hz]
+f_high = 10e9;                         % noise integration upper bound [Hz]
+
 fprintf('fu = %.1f MHz, wu = %.3e rad/s\n\n', fu/1e6, wu);
 
 %% 3. Define Sweep Ranges
@@ -160,7 +168,19 @@ for i_n = 1:length(gmid_n_vec)
             wu_actual = beta * gm_n / CLtot_actual;
             ts_actual = log(1/ed) / wu_actual;
             eps_s     = 1 / (beta * Av0_best);
-            noise_actual = sqrt((alpha / beta) * kB * T / CLtot_actual);
+
+            % Thermal noise (kT/C)
+            noise_thermal_sq = (alpha / beta) * kB * T / CLtot_actual;
+
+            % 1/f noise — input-referred at M1 gate, then through noise gain 1/beta
+            % W, L from lookup tables are in um — convert to meters
+            Svg_1f_n = KFn / (Cox^2 * Wn*1e-6 * Ln_found*1e-6);              % NMOS [V^2 at 1Hz]
+            Svg_1f_p = KFp / (Cox^2 * Wp*1e-6 * Lp_found*1e-6) * gm_ratio^2; % PMOS ref to M1 gate
+            f_BW = beta * gm_n / (2*pi*CLtot_actual);               % closed-loop BW
+            noise_1f_sq = (Svg_1f_n + Svg_1f_p) / beta^2 * log(min(f_BW, f_high)/f_low);
+
+            % Total noise (thermal + 1/f)
+            noise_actual = sqrt(noise_thermal_sq + noise_1f_sq);
 
             % Dynamic range
             Vdsat_n = 2 / gmid_n;
@@ -169,7 +189,7 @@ for i_n = 1:length(gmid_n_vec)
             if Vswing <= 0, continue; end
             Vamp  = Vswing / 2;
             P_out = Vamp^2 / 2;
-            P_n   = (alpha / beta) * (kB * T / CLtot_actual);
+            P_n   = noise_thermal_sq + noise_1f_sq;
             DR_dB = 10 * log10(P_out / P_n);
 
             Area = Wn * Ln_found + Wp * Lp_found;
