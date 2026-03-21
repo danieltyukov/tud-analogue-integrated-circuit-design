@@ -1,4 +1,4 @@
-Circuit: * IGS - find operating point with fixed gate bias
+Circuit: * IGS - find operating point with new optimized values
 
 Ignoring BSIM parameter ACM
 Ignoring BSIM parameter HDIF
@@ -17,39 +17,39 @@ Semiconductor Device Operating Points:
                         --- BSIM3 MOSFETS ---
 Name:        m3          m2          m1
 Model:       pch         pch         nch
-Id:       -2.39e-04   -2.41e-04    2.41e-04
-Vgs:      -1.02e+00   -1.02e+00    5.67e-01
-Vds:      -1.02e+00   -1.14e+00    6.56e-01
+Id:       -2.93e-04   -3.19e-04    3.19e-04
+Vgs:      -6.32e-01   -6.32e-01    5.60e-01
+Vds:      -6.32e-01   -1.74e+00    6.29e-02
 Vbs:       0.00e+00    0.00e+00    0.00e+00
-Vth:      -4.36e-01   -4.36e-01    4.84e-01
-Vdsat:    -4.60e-01   -4.60e-01    8.36e-02
-Gm:        7.09e-04    7.14e-04    4.19e-03
-Gds:       1.61e-05    1.50e-05    9.47e-05
-Gmb        2.39e-04    2.41e-04    1.03e-03
-Cbd:       1.04e-14    1.01e-14    3.18e-14
-Cbs:       1.41e-14    1.41e-14    3.78e-14
-Cgsov:     7.69e-15    7.69e-15    1.94e-14
-Cgdov:     7.69e-15    7.69e-15    1.94e-14
-Cgbov:     4.38e-19    4.38e-19    1.68e-19
-dQgdVgb:   5.13e-14    5.13e-14    8.37e-14
-dQgdVdb:  -7.70e-15   -7.70e-15   -1.92e-14
-dQgdVsb:  -4.22e-14   -4.22e-14   -5.95e-14
-dQddVgb:  -7.74e-15   -7.72e-15   -1.95e-14
-dQddVdb:   1.81e-14    1.78e-14    5.12e-14
-dQddVsb:   2.25e-17    1.86e-17    5.45e-17
-dQbdVgb:  -7.11e-15   -7.12e-15   -1.11e-14
-dQbdVdb:  -1.04e-14   -1.01e-14   -3.18e-14
-dQbdVsb:  -1.77e-14   -1.77e-14   -4.11e-14
+Vth:      -4.15e-01   -4.15e-01    4.89e-01
+Vdsat:    -1.83e-01   -1.83e-01    7.77e-02
+Gm:        2.64e-03    2.81e-03    5.38e-03
+Gds:       2.48e-05    2.26e-05    2.24e-03
+Gmb        8.62e-04    9.19e-04    1.34e-03
+Cbd:       1.72e-13    1.39e-13    8.81e-14
+Cbs:       2.13e-13    2.13e-13    9.01e-14
+Cgsov:     1.18e-13    1.18e-13    4.65e-14
+Cgdov:     1.18e-13    1.18e-13    4.65e-14
+Cgbov:     8.38e-19    8.38e-19    1.68e-19
+dQgdVgb:   1.28e-12    1.28e-12    2.02e-13
+dQgdVdb:  -1.19e-13   -1.18e-13   -5.19e-14
+dQgdVsb:  -1.10e-12   -1.10e-12   -1.39e-13
+dQddVgb:  -1.21e-13   -1.18e-13   -6.14e-14
+dQddVdb:   2.91e-13    2.57e-13    1.55e-13
+dQddVsb:   1.86e-15    2.35e-16   -1.46e-15
+dQbdVgb:  -1.95e-13   -1.96e-13   -2.13e-14
+dQbdVdb:  -1.72e-13   -1.39e-13   -9.57e-14
+dQbdVsb:  -3.54e-13   -3.54e-13   -9.73e-14
 
 
 
-Date: Sat Mar 21 14:06:52 2026
-Total elapsed time: 0.003 seconds.
+Date: Sat Mar 21 14:46:32 2026
+Total elapsed time: 0.002 seconds.
 
 tnom = 27
 temp = 27
 method = trap
-totiter = 10
+totiter = 11
 traniter = 0
 tranpoints = 0
 accept = 0

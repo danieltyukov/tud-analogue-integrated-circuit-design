@@ -1,15 +1,16 @@
-* IGS - find operating point with fixed gate bias
+* IGS - find operating point with new optimized values
 .lib et4252_hspice.sp
 
 VDD vdd 0 1.8
-Vgate gate 0 0.567
-Id mirror 0 239u
+Id mirror 0 293u
 
-M1 vout gate 0 0 nch W=39.56u L=0.2u ad=25.3p as=25.3p pd=40.84u ps=40.84u
-M2 vout mirror vdd vdd pch W=11.7u L=0.5u ad=7.49p as=7.49p pd=12.98u ps=12.98u
-M3 mirror mirror vdd vdd pch W=11.7u L=0.5u ad=7.49p as=7.49p pd=12.98u ps=12.98u
+M1 vout gate 0 0 nch W=94.76u L=0.2u ad=60.6p as=60.6p pd=96.04u ps=96.04u
+M2 vout mirror vdd vdd pch W=179.92u L=0.9u ad=115.1p as=115.1p pd=181.2u ps=181.2u
+M3 mirror mirror vdd vdd pch W=179.92u L=0.9u ad=115.1p as=115.1p pd=181.2u ps=181.2u
 
-CL vout 0 759f
+CL vout 0 940f
 
+* Sweep Vgate to find where Id(M1) = Id(M2)
+Vgate gate 0 0.56
 .op
 .end

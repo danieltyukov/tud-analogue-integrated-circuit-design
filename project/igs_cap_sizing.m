@@ -114,7 +114,7 @@ for i_n = 1:length(gmid_n_vec)
             CLtot_est = CLtot_noise;  % initial estimate
             converged = false;
 
-            for iter = 1:10
+            for iter = 1:50
                 % Size for settling at CLtot_est
                 gm_n = CLtot_est * wu / beta;
                 ID   = gm_n / gmid_n;
@@ -139,8 +139,8 @@ for i_n = 1:length(gmid_n_vec)
                 % Actual CLtot = noise-derived caps + drain parasitics
                 CLtot_new = CL + Cdb_n + Cdb_p + (1 - beta) * CFtot;
 
-                % Check convergence
-                if abs(CLtot_new - CLtot_est) / CLtot_est < 0.01
+                % Check convergence (tight tolerance)
+                if abs(CLtot_new - CLtot_est) / CLtot_est < 0.001
                     converged = true;
                     CLtot_est = CLtot_new;
                     break;
@@ -174,9 +174,9 @@ for i_n = 1:length(gmid_n_vec)
 
             Area = Wn * Ln_found + Wp * Lp_found;
 
-            % --- Check all specs (small tolerance for numerical precision) ---
-            feasible = (ts_actual <= 5.6e-9) && ...
-                       (eps_s <= 0.085) && ...
+            % --- Check all specs (with floating-point tolerance) ---
+            feasible = (ts_actual <= 5.5e-9 * 1.001) && ...
+                       (eps_s <= 0.08 * 1.001) && ...
                        (noise_actual <= 100e-6) && ...
                        (ID <= 500e-6) && ...
                        (CF > 0);
@@ -216,9 +216,26 @@ if isempty(fi)
     error('No feasible design found! Check debug output above.');
 end
 
-% Among feasible: minimize area, break ties by max DR
-[~, sort_idx] = sortrows([res.Area(fi), -res.DR_dB(fi)], [1, 2]);
-bi = fi(sort_idx(1));
+% Among feasible: balance DR maximization with area minimization
+% Normalize both metrics to [0, 1] and combine
+f_DR   = res.DR_dB(fi);
+f_area = res.Area(fi);
+DR_norm   = (f_DR - min(f_DR)) / (max(f_DR) - min(f_DR) + eps);
+Area_norm = (f_area - min(f_area)) / (max(f_area) - min(f_area) + eps);
+FOM = DR_norm - Area_norm;  % maximize DR, minimize area
+[~, best_fom] = max(FOM);
+bi = fi(best_fom);
+
+% Also print Pareto summary
+fprintf('--- Top 5 by balanced FOM (DR vs Area) ---\n');
+[~, fom_sort] = sort(FOM, 'descend');
+for k = 1:min(5, length(fom_sort))
+    j = fi(fom_sort(k));
+    fprintf('  gmid_n=%.1f gmid_p=%.1f CR=%.2f | ts=%.2fns eps=%.1f%% noise=%.0fuV ID=%.0fuA Area=%.0f DR=%.1fdB\n', ...
+        res.gmid_n(j), res.gmid_p(j), res.CR(j), res.ts_actual(j)*1e9, ...
+        res.eps_s(j)*100, res.noise_actual(j)*1e6, res.ID(j)*1e6, res.Area(j), res.DR_dB(j));
+end
+fprintf('-------------------------------------------\n\n');
 
 %% 6. Print Final Design
 fprintf('============================================\n');
@@ -254,23 +271,25 @@ fprintf('============================================\n');
 
 %% 7. Optimization Plots
 figure('Name', 'DR vs (gm/ID)_p');
-m1 = res.feasible & res.gmid_n == res.gmid_n(bi) & res.CR == res.CR(bi);
+m1 = res.feasible & abs(res.gmid_n - res.gmid_n(bi))<0.01 & abs(res.CR - res.CR(bi))<0.001;
 if sum(m1) > 1
     plot(res.gmid_p(m1), res.DR_dB(m1), 'b-o', 'LineWidth', 1.5); hold on;
     plot(res.gmid_p(bi), res.DR_dB(bi), 'rp', 'MarkerSize', 15, 'MarkerFaceColor', 'r');
     xlabel('(g_m/I_D)_p [S/A]'); ylabel('DR [dB]');
     title(sprintf('DR vs PMOS Inversion | (g_m/I_D)_n=%.1f, CR=%.2f', res.gmid_n(bi), res.CR(bi)));
     grid on; legend('Feasible', 'Optimum');
+    saveas(gcf, 'plot_DR_vs_gmid_p.png');
 end
 
 figure('Name', 'Area vs CR');
-m2 = res.feasible & res.gmid_n == res.gmid_n(bi) & res.gmid_p == res.gmid_p(bi);
+m2 = res.feasible & abs(res.gmid_n - res.gmid_n(bi))<0.01 & abs(res.gmid_p - res.gmid_p(bi))<0.01;
 if sum(m2) > 1
     plot(res.CR(m2), res.Area(m2), 'b-o', 'LineWidth', 1.5); hold on;
     plot(res.CR(bi), res.Area(bi), 'rp', 'MarkerSize', 15, 'MarkerFaceColor', 'r');
     xlabel('CR'); ylabel('Area [um^2]');
     title(sprintf('Area vs CR | (g_m/I_D)_n=%.1f, (g_m/I_D)_p=%.1f', res.gmid_n(bi), res.gmid_p(bi)));
     grid on; legend('Feasible', 'Optimum');
+    saveas(gcf, 'plot_Area_vs_CR.png');
 end
 
 figure('Name', 'Design Space');
@@ -279,6 +298,7 @@ plot(res.DR_dB(bi), res.Area(bi), 'rp', 'MarkerSize', 15, 'MarkerFaceColor', 'r'
 xlabel('DR [dB]'); ylabel('Area [um^2]');
 title('Feasible Design Space'); c = colorbar; c.Label.String = 'I_D [uA]';
 grid on; legend('Feasible', 'Optimum');
+saveas(gcf, 'plot_Design_Space.png');
 
 %% 8. Comparison Table
 fprintf('\n============================================\n');
