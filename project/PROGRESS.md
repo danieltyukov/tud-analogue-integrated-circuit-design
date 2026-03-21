@@ -148,74 +148,115 @@ Circuit topology matches Figure 1 from project instructions:
 - $C_F$: 424 fF feedback capacitor (Vout to gate)
 - $C_L$: 940 fF load capacitor
 
-### 2.2 DC Operating Point (from LTSpice test netlist)
+### 2.2 DC Operating Point (from `.op`)
 
-Found by sweeping gate voltage with fixed bias in `igs_test.cir`:
+Direct Newton iteration succeeded (no Gmin stepping).
+
+**Node voltages:**
 
 | Node | Voltage |
 |---|---|
-| $V(Vout)$ | 1.17 V |
+| $V(Vout)$ | 1.16517 V |
 | $V(gate)$ | 0.52 V |
-| $V(mirror)$ | 1.168 V |
+| $V(mirror)$ | 1.1676 V |
 | $V_{DD}$ | 1.8 V |
 
-| Transistor | $I_D$ | $V_{GS}$ | $V_{DS}$ | $V_{th}$ | Region |
-|---|---|---|---|---|---|
-| $M_1$ (nch) | 293 μA | 0.52 V | 1.17 V | 0.488 V | Saturation |
-| $M_2$ (pch) | −293 μA | −0.632 V | −0.635 V | −0.415 V | Saturation |
-| $M_3$ (pch) | −293 μA | −0.632 V | −0.632 V | −0.415 V | Saturation (diode) |
+**Transistor DC operating points:**
+
+| Parameter | $M_1$ (nch) | $M_2$ (pch) | $M_3$ (pch) |
+|---|---|---|---|
+| $I_D$ | 293.06 μA | −293.06 μA | −293.00 μA |
+| $V_{GS}$ | 0.52 V | −0.632 V | −0.632 V |
+| $V_{DS}$ | 1.17 V | −0.635 V | −0.632 V |
+| $V_{BS}$ | 0 V | 0 V | 0 V |
+| $V_{th}$ | 0.480 V | −0.415 V | −0.415 V |
+| $V_{Dsat}$ | 64.2 mV | −183 mV | −183 mV |
+| Region | Saturation | Saturation | Saturation (diode) |
+
+**Small-signal parameters (from BSIM3 .op):**
+
+| Parameter | $M_1$ (nch) | $M_2$ (pch) | $M_3$ (pch) |
+|---|---|---|---|
+| $g_m$ | 5.85 mS | 2.64 mS | 2.64 mS |
+| $g_{ds}$ | 121 μS | 24.8 μS | 24.8 μS |
+| $g_{mb}$ | 1.46 mS | 862 μS | 862 μS |
+| $g_m/g_{ds}$ | 48.3 | 106.5 | 106.5 |
+| $g_m/I_D$ | 20.0 S/A | 9.01 S/A | 9.01 S/A |
+
+**Derived from SPICE .op:**
+
+| Parameter | Value |
+|---|---|
+| $A_{v0} = g_{m1}/(g_{ds1}+g_{ds2})$ | 40.1 |
+| $\beta \cdot A_{v0}$ | 12.7 |
+| Static error $= 1/(\beta \cdot A_{v0})$ | 7.9% |
+| $I(V_{DD})$ supply current | 586.06 μA (= 2 × $I_D$) |
 
 ### 2.3 Simulation Setup
 
-**Gate bias issue:** The gate of $M_1$ connects only through capacitors ($C_S$, $C_F$) — no DC path. For simulation, a bias voltage source ($V_{bias} = 0.52$ V) is connected through a 1 GΩ resistor to the gate. This provides the DC operating point without affecting AC performance (1 GΩ is $>10^5\times$ larger than $C_F$ impedance at signal frequencies).
+**Gate DC bias:** The gate of $M_1$ connects only through capacitors ($C_S$, $C_F$) — no DC path. A bias source $V_{bias} = 0.52$ V through $R_{bias} = 10$ MΩ sets the gate operating point. The 10 MΩ resistor is large enough not to affect AC/transient performance at signal frequencies.
 
 **SPICE directives:**
 - `.tran 0 70n 0 0.1n` — transient simulation
-- `.nodeset V(Vout)=1.17 V(gate)=0.52 V(mirror)=1.168` — helps .op convergence
-- `Vbias nbias 0 0.52` + `Rbias nbias gate 1G` — gate DC bias
-- `.noise V(Vout) V1 dec 100 10 10G` — noise simulation (commented, enable when needed)
+- `.nodeset V(Vout)=1.17 V(gate)=0.52 V(mirror)=1.168` — initial guess for convergence
+- `Vbias 0.52V` + `Rbias 10Meg` to gate — DC bias path
+- `.noise V(Vout) V1 dec 100 10 10G` — noise simulation (commented out, enable when needed)
+- `.ac dec 100 1 1T` — AC simulation (commented out, enable with `.noise`)
 - Input: `PULSE(0 10m 10n 100p 100p 50n 100n)` — 10 mV step at $t = 10$ ns
 
-### 2.4 Simulations Still Needed
+### 2.4 Simulation Results (Transient)
 
-- [ ] Transient settling — verify settling time $\leq 5.5$ ns
-- [ ] Dynamic error plot — annotate settling time at 0.1%
-- [ ] Noise simulation — verify integrated noise $\leq 100$ μVrms
-- [ ] Fill SPICE column in comparison table
+From `.tran 0 70n 0 0.1n` with `PULSE(0 10m 10n 100p 100p 50n 100n)`:
+
+| Measurement | Value |
+|---|---|
+| Vinit (at 9.9 ns) | 1.16517 V |
+| Vfinal (at 55 ns) | 1.14670 V |
+| Vstep | −18.476 mV |
+| Expected ideal Vstep | −20.0 mV ($G \times V_{in} = 2 \times 10$ mV) |
+| Static error (SPICE) | 7.62% |
+| OP solver | Direct Newton (no Gmin stepping) |
+
+- [x] Transient settling — step response captured (`plot_transient_step_response.png`)
+- [ ] Noise simulation — needs `.noise` run (uncomment `.noise` and `.ac`, comment `.tran`)
+- [ ] Dynamic error plot — to be annotated
+- [x] SPICE comparison values obtained
 
 ---
 
 ## 3. Comparison Table (MATLAB vs SPICE)
 
-| Parameter | MATLAB | SPICE | Error (%) |
+| Parameter | MATLAB | SPICE | Rel. Error |
 |---|---|---|---|
-| $W_n$ [μm] | 94.76 | — | — |
-| $L_n$ [μm] | 0.200 | — | — |
-| $W_p$ [μm] | 179.92 | — | — |
-| $L_p$ [μm] | 0.900 | — | — |
-| Total Area [μm²] | 180.9 | — | — |
-| $CR$ | 0.05 | — | — |
-| $DR$ [dB] | 75.1 | — | — |
-| $(g_m/I_D)_n$ [S/A] | 20.0 | — | — |
-| $(g_m/I_D)_p$ [S/A] | 9.0 | — | — |
-| Noise [μVrms] | 92.3 | — | — |
-| Settling Time [ns] | 5.50 | — | — |
-| Static Error [%] | 7.98 | — | — |
-| $I_D$ [μA] | 292.8 | — | — |
+| $W_n$ [μm] | 94.76 | 94.76 | 0% |
+| $L_n$ [μm] | 0.200 | 0.200 | 0% |
+| $W_p$ [μm] | 179.92 | 179.92 | 0% |
+| $L_p$ [μm] | 0.900 | 0.900 | 0% |
+| $I_D$ [μA] | 292.8 | 293.06 | 0.1% |
+| $g_{m,n}$ [mS] | 5.857 | 5.85 | 0.1% |
+| $(g_m/I_D)_n$ [S/A] | 20.0 | 20.0 | 0% |
+| $(g_m/I_D)_p$ [S/A] | 9.0 | 9.01 | 0.1% |
+| $A_{v0}$ | 39.5 | 40.1 | 1.5% |
+| Static Error [%] | 7.98 | 7.62 | 4.5% |
+| Vstep [mV] | −18.40 | −18.48 | 0.4% |
+| $V(Vout)$ OP [V] | ~1.17 | 1.16517 | 0.4% |
+| Noise [μVrms] | 92.3 | — (pending) | — |
+| Settling Time [ns] | 5.50 | ~5 (from plot) | — |
 
-SPICE column to be filled after successful transient and noise simulations.
+**Discrepancy discussion:** MATLAB and SPICE agree very well. The gₘ/ID ratios match exactly (20.0 and 9.0 S/A), confirming the lookup tables are consistent with the BSIM3v3 model. The open-loop gain $A_{v0}$ differs by only 1.5% (39.5 vs 40.1), leading to a small static error difference (7.98% vs 7.62%). The SPICE gain is slightly higher because $g_{ds}$ at the exact bias point differs slightly from the lookup table interpolation. Noise simulation still pending.
 
 ---
 
 ## 4. Remaining Deliverables
 
-- [ ] Working LTSpice transient simulation → settling transient plot
+- [x] Working LTSpice transient simulation → `plot_transient_step_response.png`
+- [x] Final schematic with component values → `schematic_igs_pmos_load.png`
+- [x] SPICE static error verified (7.62% vs MATLAB 7.98%)
+- [ ] Noise simulation → uncomment `.noise`/`.ac`, comment `.tran`, re-run
 - [ ] Dynamic error plot with annotated settling time
-- [ ] Noise simulation → running noise integral plot
-- [ ] Complete comparison table (MATLAB vs SPICE)
+- [ ] Complete comparison table (needs noise from SPICE)
 - [ ] IEEE report (4 pages max, Transactions format)
 - [ ] Flowchart of MATLAB code
-- [ ] Final schematic with component values
 
 ---
 
@@ -230,9 +271,10 @@ SPICE column to be filled after successful transient and noise simulations.
 | `180pch.mat` | PMOS lookup table | Copied from tools |
 | `et4252_hspice.sp` | BSIM3v3 SPICE models | Copied from tools |
 | `igs_pmos_load.asc` | LTSpice schematic | Updated with optimized values |
-| `igs_test.cir` | Test netlist for finding DC bias | Complete |
 | `plot_DR_vs_gmid_p.png` | DR vs PMOS inversion plot | Generated |
 | `plot_Area_vs_CR.png` | Area vs CR plot | Generated |
 | `plot_Design_Space.png` | Feasible design space scatter | Generated |
+| `plot_transient_step_response.png` | V(Vout) transient step response (0–70ns) | From LTSpice |
+| `schematic_igs_pmos_load.png` | LTSpice schematic with OP annotation | From LTSpice |
 | `PROJECT_PLAN.md` | Full design plan with equations | Complete |
 | `PROGRESS.md` | This file | Current |
