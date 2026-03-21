@@ -16,12 +16,12 @@ Rbias gate N001 10Meg
 .lib et4252_hspice.sp
 ;tran 0 70n 0 0.1n
 .nodeset V(Vout)=1.17 V(gate)=0.52 V(mirror)=1.168
-;noise V(Vout) V1 dec 100 10 10G
+.noise V(Vout) V1 dec 100 10 10G
 ;ac dec 100 1 1T
 .options plotwinsize=0
 .meas TRAN Vfinal FIND V(Vout) AT=55n
 .meas TRAN Vinit FIND V(Vout) AT=9.9n
 .meas TRAN Vstep PARAM Vfinal-Vinit
-.op
+;op
 .backanno
 .end

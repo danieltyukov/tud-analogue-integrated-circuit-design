@@ -264,7 +264,7 @@ From `.noise V(Vout) V1 dec 100 10 10G`:
 - [x] Working LTSpice transient simulation → `plot_transient_step_response.png`
 - [x] Final schematic with component values → `schematic_igs_pmos_load.png`
 - [x] SPICE static error verified (7.62% vs MATLAB 7.98%)
-- [ ] Noise simulation → uncomment `.noise`/`.ac`, comment `.tran`, re-run
+- [x] Noise simulation → `plot_noise_spectral_density.png` (594.78 μVrms, see §2.5)
 - [x] Dynamic error plot with annotated settling time → `plot_dynamic_error.png`
 - [ ] Complete comparison table (needs noise from SPICE)
 - [ ] IEEE report (4 pages max, Transactions format)
@@ -289,5 +289,6 @@ From `.noise V(Vout) V1 dec 100 10 10G`:
 | `plot_transient_step_response.png` | V(Vout) transient step response (0–70ns) | From LTSpice |
 | `schematic_igs_pmos_load.png` | LTSpice schematic with OP annotation | From LTSpice |
 | `plot_dynamic_error.png` | Zoomed step response with settling cursors | From LTSpice |
+| `plot_noise_spectral_density.png` | V(onoise) with integrated RMS (594.78 μV) | From LTSpice |
 | `PROJECT_PLAN.md` | Full design plan with equations | Complete |
 | `PROGRESS.md` | This file | Current |
