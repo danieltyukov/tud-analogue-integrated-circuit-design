@@ -1,0 +1,25 @@
+* Z:\home\danieltyukov\workspace\tud\tud-analogue-integrated-circuit-design\project\igs_pmos_load.asc
+M1 Vout gate 0 0 nch W=39.56u L=0.2u ad=25.3p as=25.3p pd=40.84u ps=40.84u
+M2 Vdd mirror Vout Vdd pch W=11.7u L=0.5u ad=7.49p as=7.49p pd=12.98u ps=12.98u
+M3 Vdd mirror mirror Vdd pch W=11.7u L=0.5u ad=7.49p as=7.49p pd=12.98u ps=12.98u
+Cl Vout 0 759f
+Cf Vout gate 360f
+Cs gate Vin 759f
+Id 0 mirror 239µ
+V1 Vin 0 PULSE(0 10m 10n 100p 100p 50n 100n) AC 1
+V2 Vdd 0 1.8
+.model NMOS NMOS
+.model PMOS PMOS
+.lib C:\users\danieltyukov\Documents\LTspiceXVII\lib\cmp\standard.mos
+.lib et4252_hspice.sp
+.tran 0 70n 0 0.1n uic
+.ic V(Vout)=0.656 V(gate)=0.567 V(mirror)=0.78
+* .noise V(Vout) V1 dec 100 10 10G
+* .ac dec 100 1 1T
+.options plotwinsize=0 gmin=1e-12 reltol=0.001
+Rbias Vout gate 10Meg
+.meas TRAN Vfinal FIND V(Vout) AT=55n
+.meas TRAN Vinit FIND V(Vout) AT=9.9n
+.meas TRAN Vstep PARAM Vfinal-Vinit
+.backanno
+.end

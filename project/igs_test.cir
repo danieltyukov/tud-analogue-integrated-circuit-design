@@ -1,0 +1,15 @@
+* IGS - find operating point with fixed gate bias
+.lib et4252_hspice.sp
+
+VDD vdd 0 1.8
+Vgate gate 0 0.567
+Id mirror 0 239u
+
+M1 vout gate 0 0 nch W=39.56u L=0.2u ad=25.3p as=25.3p pd=40.84u ps=40.84u
+M2 vout mirror vdd vdd pch W=11.7u L=0.5u ad=7.49p as=7.49p pd=12.98u ps=12.98u
+M3 mirror mirror vdd vdd pch W=11.7u L=0.5u ad=7.49p as=7.49p pd=12.98u ps=12.98u
+
+CL vout 0 759f
+
+.op
+.end
