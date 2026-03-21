@@ -218,9 +218,21 @@ From `.tran 0 70n 0 0.1n` with `PULSE(0 10m 10n 100p 100p 50n 100n)`:
 | OP solver | Direct Newton (no Gmin stepping) |
 
 - [x] Transient settling — step response captured (`plot_transient_step_response.png`)
-- [ ] Noise simulation — needs `.noise` run (uncomment `.noise` and `.ac`, comment `.tran`)
-- [ ] Dynamic error plot — to be annotated
+- [x] Noise simulation — `plot_noise_spectral_density.png`, integrated RMS = 594.78 μVrms (10 Hz–10 GHz)
+- [x] Dynamic error plot — `plot_dynamic_error.png` (Δt = 5.43 ns, ΔV = 19.06 mV)
 - [x] SPICE comparison values obtained
+
+### 2.5 Noise Simulation
+
+From `.noise V(Vout) V1 dec 100 10 10G`:
+
+| Parameter | Value |
+|---|---|
+| Integration band | 10 Hz – 10 GHz |
+| Total RMS output noise (SPICE) | 594.78 μV |
+| MATLAB kT/C noise prediction | 92.3 μV |
+
+**Why SPICE noise ≫ MATLAB noise:** The `.noise` analysis treats the circuit as continuous-time and integrates over the full 10 Hz–10 GHz band. This includes 1/f (flicker) noise from the MOSFETs (dominant below ~1 kHz) and thermal noise from $R_{bias} = 10$ MΩ ($\sqrt{4kTR} \approx 12.9$ nV/√Hz at gate, amplified by $A_{v0} \approx 40$). In the actual switched-capacitor IGS, noise is **sampled** and limited by $kT/C_{L,tot}$ — the MATLAB value of 92.3 μVrms is the correct figure for the discrete-time circuit. The SPICE continuous-time noise is not directly comparable.
 
 ---
 
@@ -240,8 +252,8 @@ From `.tran 0 70n 0 0.1n` with `PULSE(0 10m 10n 100p 100p 50n 100n)`:
 | Static Error [%] | 7.98 | 7.62 | 4.5% |
 | Vstep [mV] | −18.40 | −18.48 | 0.4% |
 | $V(Vout)$ OP [V] | ~1.17 | 1.16517 | 0.4% |
-| Noise [μVrms] | 92.3 | — (pending) | — |
-| Settling Time [ns] | 5.50 | ~5 (from plot) | — |
+| Noise [μVrms] | 92.3 (kT/C) | 594.78 (continuous-time) | N/A (see §2.5) |
+| Settling Time [ns] | 5.50 | 5.43 | 1.3% |
 
 **Discrepancy discussion:** MATLAB and SPICE agree very well. The gₘ/ID ratios match exactly (20.0 and 9.0 S/A), confirming the lookup tables are consistent with the BSIM3v3 model. The open-loop gain $A_{v0}$ differs by only 1.5% (39.5 vs 40.1), leading to a small static error difference (7.98% vs 7.62%). The SPICE gain is slightly higher because $g_{ds}$ at the exact bias point differs slightly from the lookup table interpolation. Noise simulation still pending.
 
@@ -253,7 +265,7 @@ From `.tran 0 70n 0 0.1n` with `PULSE(0 10m 10n 100p 100p 50n 100n)`:
 - [x] Final schematic with component values → `schematic_igs_pmos_load.png`
 - [x] SPICE static error verified (7.62% vs MATLAB 7.98%)
 - [ ] Noise simulation → uncomment `.noise`/`.ac`, comment `.tran`, re-run
-- [ ] Dynamic error plot with annotated settling time
+- [x] Dynamic error plot with annotated settling time → `plot_dynamic_error.png`
 - [ ] Complete comparison table (needs noise from SPICE)
 - [ ] IEEE report (4 pages max, Transactions format)
 - [ ] Flowchart of MATLAB code
@@ -276,5 +288,6 @@ From `.tran 0 70n 0 0.1n` with `PULSE(0 10m 10n 100p 100p 50n 100n)`:
 | `plot_Design_Space.png` | Feasible design space scatter | Generated |
 | `plot_transient_step_response.png` | V(Vout) transient step response (0–70ns) | From LTSpice |
 | `schematic_igs_pmos_load.png` | LTSpice schematic with OP annotation | From LTSpice |
+| `plot_dynamic_error.png` | Zoomed step response with settling cursors | From LTSpice |
 | `PROJECT_PLAN.md` | Full design plan with equations | Complete |
 | `PROGRESS.md` | This file | Current |
