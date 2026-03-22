@@ -1,6 +1,6 @@
 %% igs_cap_sizing.m — IGS with Active PMOS Load Optimization
 %  ET4252 Analogue Integrated Circuit Design — TU Delft
-%  Daniel Tyukov (5714699), Raghavendra Joshi (6438180)
+%  Daniel Tyukov (5714699)
 %
 %  LOOP 1 (gm/ID loop): Sweep (gm/ID)_n, (gm/ID)_p, CR
 %  LOOP 2 (sizing loop): Self-loading iteration per design point

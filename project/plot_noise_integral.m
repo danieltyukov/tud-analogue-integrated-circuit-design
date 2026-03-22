@@ -1,6 +1,3 @@
-%% plot_noise_integral.m — Running output noise integral from SPICE data
-%  Reads exported LTSpice noise data and computes cumulative RMS
-
 clearvars; close all; clc;
 
 %% Load SPICE noise data
